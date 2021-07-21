@@ -1,7 +1,5 @@
 import os
 import sys
-import math
-import ctypes
 
 import kivy
 kivy.require('1.1.1')
@@ -15,42 +13,22 @@ from kivy.resources import resource_find
 #from kivy.graphics.transformation import Matrix
 from kivy.graphics import Fbo
 from kivy.graphics import Rectangle
+from kivy.uix.popup import Popup
+from kivy.uix.gridlayout import GridLayout
+from kivy.uix.slider import Slider
+from kivy.uix.treeview import TreeView, TreeViewLabel, TreeViewNode
+
+
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.button import Button
 
 from kivy.graphics import opengl
 
 import numpy as np
+from shader import Shader
+
 
 sys.path.insert(1, os.getcwd()+'/bin')
-
-vertex_code = b"""
-	uniform mat4 u_projection_mat;
-	attribute vec3 a_position;
-	varying vec4 v_color;
-	void main()
-	{
-		gl_Position = u_projection_mat*vec4(a_position, 1.0);
-		v_color = (vec4(a_position, 1.0)+1.0)/2.0;
-	} """
-
-
-
-fragment_code = b"""
-	varying vec4 v_color;
-	void main()
-	{
-		gl_FragColor = v_color;
-	} """
-
-
-#def createShader(vertPath, fragPath, tchsPath=None, teshPath=None, geomPath=None):
-#	vert = loadShaderString(vertPath)
-#	vertId = loadShader(vert, GL_VERTEX_SHADER)
-#
-#	frag = loadShaderString(fragPath)
-#	fragId = loadShader(frag, GL_FRAGMENT_SHADER)
-#
-#	return LinkShader(fragID, vertID)
-
 
 data = np.array([ -0.5,-0.5,0.5,
 					0.5,-0.5,0.5,
@@ -89,21 +67,7 @@ class Application(Widget):
 		self.kvfbo.release()
 
 	def setup_glfbo(self):
-		self.program = opengl.glCreateProgram()
-
-		vertex	 = opengl.glCreateShader(opengl.GL_VERTEX_SHADER)
-		fragment = opengl.glCreateShader(opengl.GL_FRAGMENT_SHADER)
-		opengl.glShaderSource(vertex, vertex_code)
-		opengl.glShaderSource(fragment, fragment_code)
-		opengl.glCompileShader(vertex)
-		opengl.glCompileShader(fragment)
-
-		opengl.glAttachShader(self.program, vertex)
-		opengl.glAttachShader(self.program, fragment)
-		opengl.glLinkProgram(self.program)
-		opengl.glDetachShader(self.program, vertex)
-		opengl.glDetachShader(self.program, fragment)
-		opengl.glUseProgram(self.program)
+		self.program = Shader("../resources/shaders/default.vert", "../resources/shaders/default.frag").get_program()
 
 		self.w, self.h = Window.width, Window.height
 		opengl.glEnable(opengl.GL_TEXTURE_2D)
@@ -160,18 +124,70 @@ class Application(Widget):
 	def update(self, dt):
 		#glViewport(0, 0, width, height)
 		opengl.glEnable(opengl.GL_DEPTH_TEST)
+		#opengl.glDepthMask(opengl.GL_FALSE)
+		opengl.glDepthFunc(opengl.GL_LESS)
+		opengl.glEnable(opengl.GL_DEPTH_TEST)
 		opengl.glClearColor(0.5, 0.5, 0.5,1.0)
 		opengl.glClear(opengl.GL_COLOR_BUFFER_BIT | opengl.GL_DEPTH_BUFFER_BIT)
+
+		#opengl.glDisable(opengl.GL_DEPTH_TEST)
 
 
 class MainApp(App):
 	cwd = os.getcwd()
 	os.chdir(cwd)
 
+
+	def onButtonPress(self, button):
+		#self.app.reload_shaders()
+		print("BUTTON PRESS")
+
+	def OnSliderValueChange(self, instance, value):
+		#self.app.change_scale(value)
+		print(f"{instance}, {value}")
+
 	def build(self):
-		#application = ApplicationRun()
-		#Clock.schedule_interval(application.update, 1.0 / 60.0)
-		return Application()
+		self.app = Application()
+		#root = GridLayout(cols=1, padding=10)
+		root = BoxLayout(orientation='vertical')
+		#self.button = Button(text="Click for pop-up")
+		#root.add_widget(self.button)
+
+		tv = TreeView(root_options=dict(text='Solar System'),
+					  hide_root=False,
+					  indent_level=4)
+		n1 = tv.add_node(TreeViewLabel(text="earth".capitalize()))
+		n2 = tv.add_node(TreeViewLabel(text="mars".capitalize()))
+		#for sub_object in self.app.solar_system.mars.planet['moons']:
+		#	tv.add_node(TreeViewLabel(text=sub_object['name'].capitalize()), n2)
+		#for sub_object in self.app.solar_system.earth.planet['moons']:
+		#	tv.add_node(TreeViewLabel(text=sub_object['name'].capitalize()), n1)
+
+		layout      = GridLayout(cols=1, padding=10)
+		#popupLabel  = Label(text  = "Click for pop-up")
+		scale_slider = Slider(min=-0, max=100, value=1)
+		scale_slider.bind(value=self.OnSliderValueChange)
+		closeButton = Button(text = "Reload\nShaders", size=(200, 50), on_press=self.onButtonPress)
+		#layout.add_widget(Slider(value_track=True, value_track_color=[1, 0, 0, 1]))
+		layout.add_widget(tv)
+		layout.add_widget(scale_slider)
+		layout.add_widget(closeButton)
+		popup = Popup(title='Demo Popup',size_hint=(None, None), size=(200, 400), pos_hint={'top':.97,'right':.97},
+					  content=layout, auto_dismiss=False)
+		popup.open()  
+
+		layout2 = BoxLayout(opacity=0.5)
+		#pb = ProgressBar(max=1000, size=(100, 100))
+		#pb.value = 750
+		#layout2.add_widget(pb)
+		#layout2.add_widget(Slider(value_track=True, value_track_color=[1, 0, 0, 1], size=(100, 100)))
+		#layout2.add_widget(Button(text='Test Button', size=(100, 100)))
+
+		# Draw the scene
+		layout2.add_widget(self.app)
+		root.add_widget(layout2)
+
+		return root
 
 
 if __name__ == "__main__":
