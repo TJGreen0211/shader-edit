@@ -1,5 +1,5 @@
 """Common shader functions"""
-from kivy.graphics import opengl
+import OpenGL.GL as opengl
 
 """Shader"""
 class Shader(object):
