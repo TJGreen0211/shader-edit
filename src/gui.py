@@ -8,6 +8,8 @@ import tkinter as tk
 from tkinter import filedialog
 from array import array
 
+from scene import Scene
+
 
 class WorkspaceMenu(object):
 	def __init__(self):
@@ -31,26 +33,27 @@ class WorkspaceMenu(object):
 		return data
 
 
-class GUI(object):
-	def __init__(self, window, config):
+class GUI(Scene):
+	def __init__(self):
+		super().__init__()
 		imgui.create_context()
-		self.window = window
+		#self.window = window
 		self.impl = GlfwRenderer(self.window)
 
-		self.font = self.setup_font("resources/fonts/"+config["font"])
-		self.color = tuple(config['background_color'])
-		self.current = config['current_object']
+		self.font = self.setup_font("resources/fonts/"+self.config_dict["font"])
+		self.color = tuple(self.config_dict['background_color'])
+		self.current = self.config_dict['current_object']
 
 		self.fps_values = array('f', [0 for x in range(100)])
 		
 
-	def menu(self, config):
+	def menu(self):
 		with imgui.font(self.font):
 			if imgui.begin_main_menu_bar():
 				# first menu dropdown
 				if imgui.begin_menu('File', True):
 					#if(imgui.menu_item('Save', 'Ctrl+S', False, True)[0]):
-					#	WorkspaceMenu().workspace_save(self.config_dict)
+					#	WorkspaceMenu().workspace_save(self.self.config_dict_dict)
 					imgui.menu_item('New', 'Ctrl+N', False, True)
 					imgui.menu_item('Open ...', 'Ctrl+O', False, True)
 			
@@ -63,14 +66,14 @@ class GUI(object):
 			
 				imgui.end_main_menu_bar()
 
-			if(imgui.button("Reload")):
-				
-				root = tk.Tk()
-				root.withdraw()
-				file_path = filedialog.askopenfilenames(parent=root, title='Choose shader files')
-				print(file_path)
+			if(imgui.button("Reload Shaders")):
+				self.reload_shaders()
+				#root = tk.Tk()
+				#root.withdraw()
+				#file_path = filedialog.askopenfilenames(parent=root, title='Choose shader files')
+				#print(file_path)
 			
-			#bg_color = config['background_color']
+			#bg_color = self.config_dict['background_color']
 			_, self.color = imgui.color_edit4("Background Color", *self.color, show_alpha=True)
 
 			imgui.plot_lines("FPS", self.fps_values)
@@ -79,20 +82,18 @@ class GUI(object):
 				"combo", self.current, ["Sphere", "Cube", "Quad", "Triangle"]
 			)
 			if(combo_clicked):
-				config['current_object'] = self.current
-
-		return config
+				self.config_dict['current_object'] = self.current
 
 
-	def start_frame(self):
+	def start_imgui_frame(self):
 		self.impl.process_inputs()
 		imgui.new_frame()
 
-	def render(self):
+	def render_imgui(self):
 		imgui.render()
 		self.impl.render(imgui.get_draw_data())
 
-	def shutdown(self):
+	def shutdown_imgui(self):
 		self.impl.shutdown()
 
 	def setup_font(self, font):

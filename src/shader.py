@@ -49,7 +49,7 @@ class Shader(object):
     def check_err(self, shader):
         err = opengl.glGetShaderiv(shader, opengl.GL_COMPILE_STATUS)
         if err != opengl.GL_TRUE:
-            print(opengl.glGetShaderInfoLog(shader, 1024).decode('ASCII'))
+            print(opengl.glGetShaderInfoLog(shader).decode('ASCII'))
 
     def get_program(self):
         return self.program
