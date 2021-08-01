@@ -5,17 +5,20 @@ import numpy as np
 
 
 from OpenGL.GL import *
+from numpy.core.numeric import indices
+from numpy.lib.function_base import append
 
 from objloader import ObjFile
 from shader import Shader
 import matmath
-
+import obj
 
 class Scene(object):
 	def __init__(self):
 		self.window_width = 1280
 		self.window_height = 720
 		self.window = self.setup_glfw()
+		self.rotatation_speed = 0.0
 
 		self.config_dict = {
 			"background_color": [0.0, 0.0, 0.0, 1.0],
@@ -36,13 +39,18 @@ class Scene(object):
 		#self.gui = GUI(self.window, self.config_dict)
 
 		self.model = np.identity(4, dtype=np.float32)
+
+		self.model[0][3] = 0.0
+		self.model[1][3] = 0.0
+		self.model[2][3] = -3.0
+
 		#self.setup_scene()
 
 	def reload_shaders(self):
 		self.shader = Shader(self.config_dict["shader_vs"], self.config_dict["shader_fs"]).get_program()
 
 	def framebuffer_size_callback(self, window, width, height):
-		# make sure the viewport matches the new window dimensions; note that width and 
+		# make sure the viewport matches the new window dimensions; note that width and
 		# height will be significantly larger than specified on retina displays.
 		#camera.perspective_matrix = mat4Perspective(90.0, (float)width/(float)height, 0.1, 5000.0);
 		#framebuffer_init((float)width, (float)height, &scene_frambuffer);
@@ -56,20 +64,25 @@ class Scene(object):
 		glViewport(0,0,self.window_width, self.window_height)
 		col = tuple(self.config_dict['background_color'])
 		glClearColor(*col)
-		
+
 
 	def init_objects(self):
-		triangle = [-0.5,-0.5,-1.0,
-				 0.5,-0.5,-1.0,
-				 0.0,0.5, -1.0]
+		triangle = [-0.5,-0.5,0.0,
+				 0.5,-0.5,0.0,
+				 0.0,0.5, 0.0]
+
+		#triangle = obj.object_load()
 		triangle = np.array(triangle, dtype = np.float32)
+		self.n_vertices = int(len(triangle)/3)
+		print(triangle.nbytes)
+
 		vao = glGenVertexArrays(1)
 		VBO = glGenBuffers(1)
 		glBindVertexArray(vao)
 
 		#Bind the buffer
 		glBindBuffer(GL_ARRAY_BUFFER, VBO)
-		glBufferData(GL_ARRAY_BUFFER, 36, triangle, GL_STATIC_DRAW)
+		glBufferData(GL_ARRAY_BUFFER, triangle.nbytes, triangle, GL_STATIC_DRAW)
 	
 		#get the position from vertex shader
 		position = glGetAttribLocation(self.shader, 'position')
@@ -81,10 +94,37 @@ class Scene(object):
 
 		return vao
 
-	def load_object(self):
-		s = ObjFile("resources/objects/cube.obj")
-		m = list(s.objects.values())[0]
-		print(m.indices)
+	def load_object(self, object_index):
+
+		object_map = ["Cube", "Sphere", "Quad", "Triangle"]
+		object_vertices = obj.object_load("resources/objects/"+object_map[object_index].lower()+".obj")
+
+		object_vertices = np.array(object_vertices, dtype = np.float32)
+		self.n_vertices = int(len(object_vertices)/3)
+		#print(object_vertices.nbytes)
+
+		vao = glGenVertexArrays(1)
+		VBO = glGenBuffers(1)
+		glBindVertexArray(vao)
+
+		#Bind the buffer
+		glBindBuffer(GL_ARRAY_BUFFER, VBO)
+		glBufferData(GL_ARRAY_BUFFER, object_vertices.nbytes, object_vertices, GL_STATIC_DRAW)
+	
+		#get the position from vertex shader
+		position = glGetAttribLocation(self.shader, 'position')
+		glVertexAttribPointer(position, 3, GL_FLOAT, GL_FALSE, 0, None)
+		glEnableVertexAttribArray(position)
+
+		glEnableVertexAttribArray(0)
+		glBindVertexArray(0)
+
+		self.vao = vao
+		#print(m.vertices)
+
+		#verts = []
+		#for i in range(len(indices))
+		#	verts.append()
 
 
 	def setup_glfw(self):
@@ -117,7 +157,7 @@ class Scene(object):
 		glUniformMatrix4fv(glGetUniformLocation(self.shader, b"model"), 1, False, self.model.flatten().tobytes())
 		u_loc = glGetUniformLocation(self.shader, b"projection")
 		glUniformMatrix4fv(u_loc, 1, False, np.array(self.perspective).flatten().tobytes())
-		glDrawArrays(GL_TRIANGLES, 0, 3)
+		glDrawArrays(GL_TRIANGLES, 0, self.n_vertices)
 		glBindVertexArray(0)
 
 	

@@ -44,10 +44,15 @@ class GUI(Scene):
 		self.color = tuple(self.config_dict['background_color'])
 		self.current = self.config_dict['current_object']
 
+		self.object_map = ["Cube", "Sphere", "Quad", "Triangle"]
+
+		self.value = 88.2
+
 		self.fps_values = array('f', [0 for x in range(100)])
 		
 
 	def menu(self):
+		
 		with imgui.font(self.font):
 			if imgui.begin_main_menu_bar():
 				# first menu dropdown
@@ -79,10 +84,18 @@ class GUI(Scene):
 			imgui.plot_lines("FPS", self.fps_values)
 
 			combo_clicked, self.current = imgui.combo(
-				"combo", self.current, ["Sphere", "Cube", "Quad", "Triangle"]
+				"combo", self.current, self.object_map
 			)
 			if(combo_clicked):
 				self.config_dict['current_object'] = self.current
+				self.load_object(self.current)
+
+			_, self.rotatation_speed = imgui.slider_float(
+			    "slide floats", self.rotatation_speed,
+			    min_value=0.0, max_value=100.0,
+			    format="%.1f",
+			    power=1.0
+			)
 
 
 	def start_imgui_frame(self):

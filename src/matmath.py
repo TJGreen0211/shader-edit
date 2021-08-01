@@ -13,6 +13,3 @@ def mat4_perspective(fovy, aspect, z_near, zFar):
 	c[3][3] = 0.0
 
 	return c
-
-
-print(mat4_perspective(90.0, 1280.0/720.0, 0.1, 5000.0))

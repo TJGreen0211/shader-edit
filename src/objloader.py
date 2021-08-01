@@ -7,10 +7,17 @@ class MeshData(object):
             (b'v_tc0', 2, 'float')]
         self.vertices = []
         self.indices = []
+        self.verts = []
 
     def calculate_normals(self):
-        for i in range(len(self.indices) / (3)):
+        for i in range(int(len(self.indices) / (3))):
             fi = i * 3
+
+            #self.verts.append(self.vertices[self.indices[fi]])
+            #self.verts.append(self.vertices[self.indices[fi+1]])
+            #self.verts.append(self.vertices[self.indices[fi+2]])
+
+
             v1i = self.indices[fi]
             v2i = self.indices[fi + 1]
             v3i = self.indices[fi + 2]
@@ -34,6 +41,7 @@ class MeshData(object):
                 self.vertices[v1i + 3 + k] = n[k]
                 self.vertices[v2i + 3 + k] = n[k]
                 self.vertices[v3i + 3 + k] = n[k]
+
 
 
 class ObjFile:
@@ -69,7 +77,7 @@ class ObjFile:
             idx += 3
 
         self.objects[self._current_object] = mesh
-        # mesh.calculate_normals()
+        mesh.calculate_normals()
         self.faces = []
 
     def __init__(self, filename, swapyz=False):
