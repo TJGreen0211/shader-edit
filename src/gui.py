@@ -2,7 +2,7 @@ import os
 import json
 
 import imgui
-from integration.glfw import GlfwRenderer
+from imgui.integrations.glfw import GlfwRenderer
 
 import tkinter as tk
 from tkinter import filedialog
@@ -38,7 +38,7 @@ class GUI(Scene):
 		super().__init__()
 		
 		#self.window = window
-		self.impl = GlfwRenderer(self.window)
+		self.impl = GlfwRenderer(self.window, attach_callbacks=False)
 
 		#self.impl.keyboard_callback
 

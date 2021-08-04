@@ -2,7 +2,6 @@
 import glfw
 
 import numpy as np
-#from integration.glfw import GlfwRenderer
 import imgui
 
 
@@ -53,14 +52,6 @@ class Scene(object):
 
 		#self.setup_scene()
 
-	def do_something(self):
-		print("Testing")
-		return super(Scene, self).do_something()
-
-	def mouse_callback(self, *args, **kwargs):
-		print("ASDFQUERTY")
-		return super(Scene, self).mouse_callback(*args, **kwargs)
-
 	def reload_shaders(self):
 		self.shader = Shader(self.config_dict["shader_vs"], self.config_dict["shader_fs"]).get_program()
 
@@ -68,8 +59,8 @@ class Scene(object):
 		print("ASDFQUERTY")
 		self.zoom = Camera().process_mouse_scroll(y_offset, 0.0)
 
-	#def mouse_callback( window, xpos, ypos):
-	#	print(xpos)
+	def mouse_callback(self, window, xpos, ypos):
+		print(xpos)
 	#	#int state = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT)
 	#	#xpos = 1.0*xpos/getWindowWidth()*2 - 1.0;
 	#	#ypos =  1.0*ypos/getWindowHeight()*2 - 1.0;
