@@ -53,10 +53,19 @@ class App(GUI):
 
 			m = np.identity(4, dtype=np.float32)
 			DegreesToRadians = (math.pi / 180.0)
-			angle = DegreesToRadians * theta
+			angle = DegreesToRadians * self.camera.pitch
 			m[2][2] = m[1][1] = math.cos(angle)
 			m[2][1] = math.sin(angle)
 			m[1][2] = -m[2][1]
+
+			m2 = np.identity(4, dtype=np.float32)
+			DegreesToRadians = (math.pi / 180.0)
+			angle = DegreesToRadians * self.camera.yaw
+			m2[2][2] = m2[0][0] = math.cos(angle)
+			m2[0][2] = math.sin(angle)
+			m2[2][0] = -m2[0][2]
+
+			m = m.dot(m2)
 
 			self.model = np.identity(4, dtype=np.float32)
 

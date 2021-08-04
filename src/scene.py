@@ -64,16 +64,15 @@ class Scene(object):
 	def mouse_callback(self, window, xpos, ypos):
 		pass
 	#	print(xpos)
-	#	#int state = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT)
+		state = glfw.get_mouse_button(window, glfw.MOUSE_BUTTON_RIGHT)
 	#	#xpos = 1.0*xpos/getWindowWidth()*2 - 1.0;
 	#	#ypos =  1.0*ypos/getWindowHeight()*2 - 1.0;
-	#	#if (state == GLFW_PRESS)
-	#	#{
-	#	#	processMouseMovement(&camera, xpos, ypos, 0, delta_time);
-	#	#}
-	#	#else {
-	#	#	processMouseMovement(&camera, xpos, ypos, 1, delta_time);
-	#	#}
+		if state == glfw.PRESS:
+			self.camera.process_mouse_movement(xpos, ypos, False)
+			#processMouseMovement(&camera, xpos, ypos, 0, delta_time)
+		else:
+			self.camera.process_mouse_movement(xpos, ypos, True)
+			#processMouseMovement(&camera, xpos, ypos, 1, delta_time)
 #
 	def framebuffer_size_callback(self, window, width, height):
 		# make sure the viewport matches the new window dimensions; note that width and
