@@ -62,7 +62,7 @@ class App(GUI):
 
 			self.model[0][3] = 0.0
 			self.model[1][3] = 0.0
-			self.model[2][3] = -3.0
+			self.model[2][3] = self.camera.mouse_scroll
 
 			self.model = self.model.dot(m)
 			self.draw_object()

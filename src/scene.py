@@ -23,7 +23,7 @@ class Scene(object):
 		imgui.create_context()
 		#self.impl = super().__init__(self.window)
 		self.rotatation_speed = 0.0
-		self.zoom = 100.0
+		self.zoom = -3.0
 
 
 		self.config_dict = {
@@ -35,6 +35,8 @@ class Scene(object):
 			"window_height": 720,
 			"font": "DroidSans.ttf"
 		}
+
+		self.camera = Camera(mouse_scroll=-3.0)
 
 		
 		self.perspective = matmath.mat4_perspective(90.0, float(self.window_width)/float(self.window_height), 0.1, 5000.0)
@@ -56,11 +58,12 @@ class Scene(object):
 		self.shader = Shader(self.config_dict["shader_vs"], self.config_dict["shader_fs"]).get_program()
 
 	def scroll_callback(self, window, x_offset, y_offset):
-		print("ASDFQUERTY")
-		self.zoom = Camera().process_mouse_scroll(y_offset, 0.0)
+		self.camera.process_mouse_scroll(y_offset, 0.0)
+		print(self.camera.mouse_scroll)
 
 	def mouse_callback(self, window, xpos, ypos):
-		print(xpos)
+		pass
+	#	print(xpos)
 	#	#int state = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT)
 	#	#xpos = 1.0*xpos/getWindowWidth()*2 - 1.0;
 	#	#ypos =  1.0*ypos/getWindowHeight()*2 - 1.0;
