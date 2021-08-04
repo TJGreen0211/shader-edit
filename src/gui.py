@@ -2,7 +2,7 @@ import os
 import json
 
 import imgui
-from imgui.integrations.glfw import GlfwRenderer
+from integration.glfw import GlfwRenderer
 
 import tkinter as tk
 from tkinter import filedialog
@@ -36,31 +36,41 @@ class WorkspaceMenu(object):
 class GUI(Scene):
 	def __init__(self):
 		super().__init__()
-		imgui.create_context()
+		
 		#self.window = window
 		self.impl = GlfwRenderer(self.window)
 
+		#self.impl.keyboard_callback
+
 		self.font = self.setup_font("resources/fonts/"+self.config_dict["font"])
 		self.color = tuple(self.config_dict['background_color'])
-		self.current = self.config_dict['current_object']
 
 		self.object_map = ["Cube", "Sphere", "Quad", "Triangle"]
-
-		self.value = 88.2
 
 		self.fps_values = array('f', [0 for x in range(100)])
 		
 
 	def menu(self):
+
+		#io = imgui.get_io()
+		#print(io.mouse_wheel)
 		
 		with imgui.font(self.font):
 			if imgui.begin_main_menu_bar():
 				# first menu dropdown
 				if imgui.begin_menu('File', True):
-					#if(imgui.menu_item('Save', 'Ctrl+S', False, True)[0]):
-					#	WorkspaceMenu().workspace_save(self.self.config_dict_dict)
+					if(imgui.menu_item('Save', 'Ctrl+S', False, True)[0]):
+						WorkspaceMenu().workspace_save(self.config_dict)
+					
+					if(imgui.menu_item('Open ...', 'Ctrl+O', False, True)[0]):
+						loaded_dict = WorkspaceMenu().workspace_open()
+						for key, value in loaded_dict.items():
+							self.config_dict[key] = loaded_dict[key]
+						
+						#self.color = tuple(self.config_dict['background_color'])
+						#print(self.config_dict)
+
 					imgui.menu_item('New', 'Ctrl+N', False, True)
-					imgui.menu_item('Open ...', 'Ctrl+O', False, True)
 			
 					# submenu
 					if imgui.begin_menu('Open Recent', True):
@@ -79,16 +89,17 @@ class GUI(Scene):
 				#print(file_path)
 			
 			#bg_color = self.config_dict['background_color']
-			_, self.color = imgui.color_edit4("Background Color", *self.color, show_alpha=True)
+			color_changed, self.color = imgui.color_edit4("Background Color", *self.color, show_alpha=True)
+			if(color_changed):
+				self.config_dict['background_color'] = [*self.color]
 
-			imgui.plot_lines("FPS", self.fps_values)
+			imgui.plot_lines("", self.fps_values, scale_min=0.0, overlay_text="FPS: "+str(self.fps_values[-1]), graph_size=(300.0, 50.0))
 
-			combo_clicked, self.current = imgui.combo(
-				"combo", self.current, self.object_map
+			combo_clicked, self.config_dict['current_object'] = imgui.combo(
+				"combo", self.config_dict['current_object'], self.object_map
 			)
 			if(combo_clicked):
-				self.config_dict['current_object'] = self.current
-				self.load_object(self.current)
+				self.load_object(self.config_dict['current_object'])
 
 			_, self.rotatation_speed = imgui.slider_float(
 			    "slide floats", self.rotatation_speed,
@@ -96,6 +107,15 @@ class GUI(Scene):
 			    format="%.1f",
 			    power=1.0
 			)
+
+			#_, self.zoom = imgui.slider_float(
+			#    "slide floats", self.zoom,
+			#    min_value=0.0, max_value=100.0,
+			#    format="%.1f",
+			#    power=1.0
+			#)
+
+			#print(imgui.core.get_scroll_y())
 
 
 	def start_imgui_frame(self):

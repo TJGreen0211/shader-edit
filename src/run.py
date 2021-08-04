@@ -38,7 +38,6 @@ class App(GUI):
 
 			delta_time = current_frame - last_frame
 			theta += self.rotatation_speed*delta_time
-			print(theta)
 			last_frame = current_frame
 
 
