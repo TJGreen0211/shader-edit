@@ -59,21 +59,19 @@ class Scene(object):
 
 	def scroll_callback(self, window, x_offset, y_offset):
 		self.camera.process_mouse_scroll(y_offset, 0.0)
-		print(self.camera.mouse_scroll)
+
 
 	def mouse_callback(self, window, xpos, ypos):
-		pass
-	#	print(xpos)
 		state = glfw.get_mouse_button(window, glfw.MOUSE_BUTTON_RIGHT)
-	#	#xpos = 1.0*xpos/getWindowWidth()*2 - 1.0;
-	#	#ypos =  1.0*ypos/getWindowHeight()*2 - 1.0;
+		#xpos = 1.0*xpos/getWindowWidth()*2 - 1.0;
+		#ypos =  1.0*ypos/getWindowHeight()*2 - 1.0;
 		if state == glfw.PRESS:
 			self.camera.process_mouse_movement(xpos, ypos, False)
 			#processMouseMovement(&camera, xpos, ypos, 0, delta_time)
 		else:
 			self.camera.process_mouse_movement(xpos, ypos, True)
 			#processMouseMovement(&camera, xpos, ypos, 1, delta_time)
-#
+
 	def framebuffer_size_callback(self, window, width, height):
 		# make sure the viewport matches the new window dimensions; note that width and
 		# height will be significantly larger than specified on retina displays.
@@ -99,7 +97,6 @@ class Scene(object):
 		#triangle = obj.object_load()
 		triangle = np.array(triangle, dtype = np.float32)
 		self.n_vertices = int(len(triangle)/3)
-		print(triangle.nbytes)
 
 		vao = glGenVertexArrays(1)
 		VBO = glGenBuffers(1)
@@ -122,7 +119,20 @@ class Scene(object):
 	def load_object(self, object_index):
 
 		object_map = ["Cube", "Sphere", "Quad", "Triangle"]
-		object_vertices = obj.object_load("resources/objects/"+object_map[object_index].lower()+".obj")
+		if object_map[object_index] == "Quad":
+			object_vertices = [
+				-1.0,  1.0, 0.0,
+        		-1.0, -1.0, 0.0,
+        		 1.0, -1.0, 0.0,
+        		-1.0,  1.0, 0.0,
+        		 1.0, -1.0, 0.0,
+        		 1.0,  1.0, 0.0]
+		elif object_map[object_index] == "Triangle":
+			object_vertices = [-0.5,-0.5,0.0,
+				 0.5,-0.5,0.0,
+				 0.0,0.5, 0.0]
+		else:
+			object_vertices = obj.object_load("resources/objects/"+object_map[object_index].lower()+".obj")
 
 		object_vertices = np.array(object_vertices, dtype = np.float32)
 		self.n_vertices = int(len(object_vertices)/3)
@@ -180,6 +190,7 @@ class Scene(object):
 		glBindVertexArray(self.vao)
 
 		glUniformMatrix4fv(glGetUniformLocation(self.shader, b"model"), 1, False, self.model.flatten().tobytes())
+		glUniformMatrix4fv(glGetUniformLocation(self.shader, b"view"), 1, False, self.camera.rotation_matrix.flatten().tobytes())
 		u_loc = glGetUniformLocation(self.shader, b"projection")
 		glUniformMatrix4fv(u_loc, 1, False, np.array(self.perspective).flatten().tobytes())
 		glDrawArrays(GL_TRIANGLES, 0, self.n_vertices)
