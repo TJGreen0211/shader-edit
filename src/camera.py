@@ -5,7 +5,7 @@ class Camera(object):
 	def __init__(self, mouse_scroll = 0.0):
 		self.mouse_scroll = mouse_scroll
 		self.zoom_speed = 0.1
-		self.mouse_sensitivity = 0.000005
+		self.mouse_sensitivity = 0.0001
 		self.last_x = 0
 		self.last_y = 0
 
@@ -84,14 +84,11 @@ class Camera(object):
 			diff_x = x_pos - self.last_x
 			diff_y = y_pos - self.last_y
 
-			last_x = x_pos
-			last_y = y_pos
+			self.last_x = x_pos
+			self.last_y = y_pos
 
 			diff_x *= self.mouse_sensitivity
 			diff_y *= self.mouse_sensitivity
-
-			self.x = diff_x
-			self.y = diff_y
 
 			self.yaw += diff_x
 			self.pitch += diff_y
