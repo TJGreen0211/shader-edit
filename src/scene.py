@@ -3,6 +3,7 @@ import glfw
 
 import numpy as np
 import imgui
+import time
 
 
 from OpenGL.GL import *
@@ -24,6 +25,7 @@ class Scene(object):
 		#self.impl = super().__init__(self.window)
 		self.rotatation_speed = 0.0
 		self.zoom = -3.0
+		self.before = time.time()
 
 
 		self.config_dict = {
@@ -42,7 +44,7 @@ class Scene(object):
 		self.perspective = matmath.mat4_perspective(90.0, float(self.window_width)/float(self.window_height), 0.1, 5000.0)
 		self.shader = Shader(self.config_dict["shader_vs"], self.config_dict["shader_fs"]).get_program()
 		self.init_opengl()
-		self.vao = self.init_objects()
+		self.vao = self.load_object(2)
 
 		#self.gui = GUI(self.window, self.config_dict)
 
@@ -155,11 +157,32 @@ class Scene(object):
 		glBindVertexArray(0)
 
 		self.vao = vao
+
+		return self.vao
 		#print(m.vertices)
 
 		#verts = []
 		#for i in range(len(indices))
 		#	verts.append()
+
+	def get_delta_time(self, last_frame):
+		current_frame = glfw.get_time()
+		delta_time = current_frame - last_frame
+		last_frame = current_frame
+		return delta_time
+
+
+	def mouse_button_callback(self, window, button, action, mods):
+		if action == glfw.RELEASE:
+			now = time.time()
+			diff_ms = (now - self.before)*100.0
+			#print(f"Doubleclick: {now}, {self.before}, {diff_ms}")
+			self.before = now
+			
+			if diff_ms>1 and diff_ms<20:
+				#action = glfw.DOUBLECLICK
+				print(f"Doubleclick: {now}, {self.before}, {diff_ms}")
+				self.camera.reset_view()
 
 
 	def setup_glfw(self):
@@ -180,7 +203,7 @@ class Scene(object):
 		#glfw.set_key_callback(window, key_callback)
 		glfw.set_cursor_pos_callback(window, self.mouse_callback)
 		glfw.set_scroll_callback(window, self.scroll_callback)
-		#glfw.set_mouse_button_callback(window, self.mouse_button_callback)
+		glfw.set_mouse_button_callback(window, self.mouse_button_callback)
 
 		return window
 
