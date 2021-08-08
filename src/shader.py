@@ -2,9 +2,12 @@
 import OpenGL.GL as opengl
 
 """Shader"""
+
+
 class Shader(object):
     def __init__(self, *argv):
         self.program = opengl.glCreateProgram()
+        self.shader_error = []
         #shader_bytes = self.read_shader(path)
         #vertex = opengl.glCreateShader(opengl.GL_VERTEX_SHADER)
 
@@ -32,9 +35,9 @@ class Shader(object):
         shader = opengl.glCreateShader(shader_type)
         opengl.glShaderSource(shader, shader_code)
         opengl.glCompileShader(shader)
-        self.check_err(shader)
-        #self.link_shader(shader)
-       
+        self.check_err(shader, path.split("/")[-1])
+        # self.link_shader(shader)
+
         return shader
 
     def link_shader(self, shader):
@@ -44,12 +47,13 @@ class Shader(object):
 
     def read_shader(self, path):
         with open(path, 'r') as f:
-             return f.read().encode()
+            return f.read().encode()
 
-    def check_err(self, shader):
+    def check_err(self, shader, name):
         err = opengl.glGetShaderiv(shader, opengl.GL_COMPILE_STATUS)
         if err != opengl.GL_TRUE:
-            print(opengl.glGetShaderInfoLog(shader).decode('ASCII'))
+            self.shader_error.append(
+                f"Error in {name}: {opengl.glGetShaderInfoLog(shader).decode('ASCII')}")
 
     def get_program(self):
         return self.program
