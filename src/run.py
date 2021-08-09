@@ -1,15 +1,10 @@
 
-import math
 import glfw
 
 from OpenGL.GL import *
 from gui import GUI
 
-import math
 import numpy as np
-
-#from scene import Scene
-
 
 class App(GUI):
     def __init__(self):
@@ -21,7 +16,6 @@ class App(GUI):
         last_frame = 0.0
 
         glDisable(GL_CULL_FACE)
-
         glEnable(GL_DEPTH_TEST)
 
         self.view = np.identity(4, dtype=np.float32)
@@ -46,7 +40,7 @@ class App(GUI):
             self.start_imgui_frame()
             self.menu()
 
-            self.draw_object()
+            self.draw_object(self.uniform_dict)
 
             self.render_imgui()
             glfw.swap_buffers(self.window)

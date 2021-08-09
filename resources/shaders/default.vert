@@ -1,15 +1,17 @@
 #version 330
 
-in vec4 position;
+layout (location = 0) in vec3 position;
 
 out vec3 v_color;
+
+uniform vec3 camera_position;
 
 uniform mat4 model;
 uniform mat4 projection;
 uniform mat4 view;
 
 void main() {
-	gl_Position = position*view*model*projection;
+	gl_Position = vec4(position, 1.0)*view*model*projection;
 	v_color = position.xyz;
 }
  

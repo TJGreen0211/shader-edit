@@ -7,202 +7,275 @@ import tkinter as tk
 from tkinter import filedialog
 from array import array
 
+from numpy.lib.npyio import save
+
 from scene import Scene
 
+import gi
+gi.require_version("Gtk", "3.0")
+from gi.repository import Gtk
 
-class WorkspaceMenu(object):
-    def __init__(self):
-        self.root = tk.Tk()
-        self.root.withdraw()
-        self.save_file_path = "resources/saves"
+import threading
 
-    def workspace_save(self, save_dict):
-        f = filedialog.asksaveasfile(mode='w', defaultextension=".json", initialdir=os.path.join(
-            os.getcwd(), self.save_file_path))
-        if f is None:
-            return
-        json.dump(save_dict, f)
-        f.close()
-
-    def workspace_open(self):
-        file_path = filedialog.askopenfilename(
-            parent=self.root, title='Open Workspace', initialdir=os.path.join(os.getcwd(), self.save_file_path))
-        # Opening JSON file
-        f = open(file_path, 'r')
-        data = json.load(f)
-        f.close()
-        return data
+from dialogs import FileChooser
 
 
 class GUI(Scene):
-    def __init__(self):
-        super().__init__()
+	def __init__(self):
+		super().__init__()
 
-        self.font = self.setup_font(
-            "resources/fonts/"+self.config_dict["font"])
-        self.color = tuple(self.config_dict['background_color'])
+		self.font = self.setup_font(
+			"resources/fonts/"+self.config_dict["font"])
+		self.color = tuple(self.config_dict['background_color'])
+		self.current_object = 0
+		self.vertex_shader = self.config_dict['shader_vs']
+		self.fragment_shader = self.config_dict['shader_fs']
 
-        self.object_map = ["Cube", "Sphere", "Quad", "Triangle"]
+		self.object_map = ["Cube", "Sphere", "Quad", "Triangle"]
 
-        self.fps_values = array('f', [0 for x in range(100)])
+		self.fps_values = array('f', [0 for x in range(100)])
 
-        self.shader_errors_list = []
+		self.shader_errors_list = []
 
-        self.uniform_dict = {
-            "one": {
-                "type": "glUniform3f",
-                "value": [1.0, 0.0, 0.0]
-            },
-            "two": {
-                "type": "glUniform1f",
-                "value": [0.0]
-            },
-            "three": {
-                "type": "glUniform2f",
-                "value": [1.0, 0.0]
-            }
-        }
+		self.uniform_dict = {}
 
-        self.uniform_name = ""
-        self.uniform_value = ""
-        self.uniform_parse_error = ""
-        self.uniform_list_value = 0
-        self.uniform_list = ["auto",
-            "glUniform1f", "glUniform2f", "glUniform3f",
-            "glUniform4f", "glUniform1i", "glUniform2i",
-            "glUniform3i", "glUniform4i", "glUniform1ui",
-            "glUniform2ui", "glUniform3ui", "glUniform4ui",
-            "glUniform1fv", "glUniform2fv", "glUniform3fv",
-            "glUniform4fv", "glUniform1iv", "glUniform2iv",
-            "glUniform3iv", "glUniform4iv", "glUniform1uiv",
-            "glUniform2uiv", "glUniform3uiv", "glUniform4uiv",
-            "glUniformMatrix2fv", "glUniformMatrix3fv", "glUniformMatrix4fv",
-            "glUniformMatrix2x3fv", "glUniformMatrix3x2fv", "glUniformMatrix2x4fv",
-            "glUniformMatrix4x2fv", "glUniformMatrix3x4fv", "glUniformMatrix4x3fv"]
+		self.uniform_name = ""
+		self.uniform_value = ""
+		self.uniform_parse_error = ""
+		self.uniform_list_value = 0
+		self.uniform_list = ["auto",
+			"glUniform1f", "glUniform2f", "glUniform3f",
+			"glUniform4f", "glUniform1i", "glUniform2i",
+			"glUniform3i", "glUniform4i", "glUniform1ui",
+			"glUniform2ui", "glUniform3ui", "glUniform4ui",
+			"glUniform1fv", "glUniform2fv", "glUniform3fv",
+			"glUniform4fv", "glUniform1iv", "glUniform2iv",
+			"glUniform3iv", "glUniform4iv", "glUniform1uiv",
+			"glUniform2uiv", "glUniform3uiv", "glUniform4uiv",
+			"glUniformMatrix2fv", "glUniformMatrix3fv", "glUniformMatrix4fv",
+			"glUniformMatrix2x3fv", "glUniformMatrix3x2fv", "glUniformMatrix2x4fv",
+			"glUniformMatrix4x2fv", "glUniformMatrix3x4fv", "glUniformMatrix4x3fv"]
 
-    def parse_uniforms(self, key, value):
+	def is_float(self, x):
+		try:
+			a = float(x)
+		except (TypeError, ValueError):
+			return False
+		else:
+			return True
+	
+	def is_int(self, x):
+		try:
+			a = float(x)
+			b = int(a)
+		except (TypeError, ValueError):
+			return False
+		else:
+			return a == b
 
-        if len(key) == 0 or len(value) == 0:
-            return None
-        return {"type": "gluniform3f", "value": value}
+	def is_numeric(self, string):
+		result = True
+		try:
+			x = float(string)
+			result = (x == x) and (x - 1 != x)
+		except ValueError:
+			result = False
+		return result
 
-    def menu(self):
-        with imgui.font(self.font):
-            if imgui.begin_main_menu_bar():
-                # first menu dropdown
-                if imgui.begin_menu('File', True):
-                    if(imgui.menu_item('Save', 'Ctrl+S', False, True)[0]):
-                        WorkspaceMenu().workspace_save(self.config_dict)
+	def parse_uniforms(self, key, value):
+		if len(key) == 0 or len(value) == 0:
+			return None
 
-                    if(imgui.menu_item('Open ...', 'Ctrl+O', False, True)[0]):
-                        loaded_dict = WorkspaceMenu().workspace_open()
-                        for key, value in loaded_dict.items():
-                            self.config_dict[key] = loaded_dict[key]
+		data_type = ""
+		uniforms_list = value.split(",")
+		for uniform in uniforms_list:
+			if not self.is_numeric(uniform):
+				return None
+			
+		if not any([self.is_float(x) for x in uniforms_list]):
+			data_type = "i"
+			uniforms = [int(x) for x in uniforms_list]
+		else:
+			uniforms = [float(x) for x in uniforms_list]
+			data_type = "f"
 
-                        #self.color = tuple(self.config_dict['background_color'])
-                        # print(self.config_dict)
 
-                    #imgui.menu_item('New', 'Ctrl+N', False, True)
+		uniform_type = "glUniform"+str(len(uniforms_list))+data_type
 
-                    # submenu
-                    if imgui.begin_menu('Import Object', True):
-                        imgui.menu_item('doc.txt', None, False, True)
-                        imgui.end_menu()
+		return {"type": uniform_type, "value": uniforms}
 
-                    if(imgui.menu_item('Quit ...', 'Ctrl+Q', False, True)[0]):
-                        self.close_window()
+	def load_save_state(self, save_dict):
+		self.color = tuple(save_dict['background_color'])
+		self.uniform_dict = save_dict['uniforms']
+		self.vertex_shader = save_dict['shader_vs']
+		self.fragment_shader = save_dict['shader_fs']
+		self.config_dict['current_object'] = save_dict['current_object']
 
-                    imgui.end_menu()
+	def save_state(self):
+		save_dict = {}
+		save_dict['background_color'] = list(self.color)
+		save_dict['uniforms'] = self.uniform_dict
+		save_dict['shader_vs'] = self.vertex_shader
+		save_dict['shader_fs'] = self.fragment_shader
+		save_dict['current_object'] = self.config_dict['current_object']
+		FileChooser().save_file_dialog()
+		while Gtk.events_pending():
+  			Gtk.main_iteration()
 
-                imgui.end_main_menu_bar()
+	def menu(self):
+		with imgui.font(self.font):
+			if imgui.begin_main_menu_bar():
+				# first menu dropdown
+				if imgui.begin_menu('File', True):
+					if(imgui.menu_item('Save', 'Ctrl+S', False, True)[0]):
+						self.save_state()
 
-            if(imgui.button("Reload Shaders")):
-                self.shader_errors_list = self.reload_shaders()
+					if(imgui.menu_item('Open ...', 'Ctrl+O', False, True)[0]):
+						file_path = FileChooser().open_file_dialog()
+						while Gtk.events_pending():
+  							Gtk.main_iteration()
+						try:
+							with open(file_path, 'r') as f:
+								self.load_save_state(json.load(f))
+						except:
+							pass
+							
+					#imgui.menu_item('New', 'Ctrl+N', False, True)
 
-            color_changed, self.color = imgui.color_edit4(
-                "Background Color", *self.color, show_alpha=True)
-            if(color_changed):
-                self.config_dict['background_color'] = [*self.color]
+					if(imgui.menu_item('Import Object ...', 'Ctrl+I', False, True)[0]):
+						object_path = FileChooser().open_file_dialog()
+						while Gtk.events_pending ():
+  							Gtk.main_iteration()
+						if object_path != "":
+							self.load_object(0, object_path)
 
-            imgui.plot_lines("", self.fps_values, scale_min=0.0, overlay_text="FPS: " +
-                             str(self.fps_values[-1]), graph_size=(300.0, 50.0))
 
-            combo_clicked, self.config_dict['current_object'] = imgui.combo(
-                "combo", self.config_dict['current_object'], self.object_map
-            )
-            if(combo_clicked):
-                self.load_object(self.config_dict['current_object'])
+					if(imgui.menu_item('Quit ...', 'Ctrl+Q', False, True)[0]):
+						self.close_window()
 
-            # TODO: Decide if I want this
-            # _, self.rotatation_speed = imgui.slider_float(
-            #	"Spin", self.rotatation_speed,
-            #	min_value=0.0, max_value=100.0,
-            #	format="%.1f",
-            #	power=1.0
-            # )
+					imgui.end_menu()
 
-            imgui.text('\nUniforms:')
-            changed, self.uniform_name = imgui.input_text(
-                'Name',
-                self.uniform_name,
-                256
-            )
-            changed, self.uniform_value = imgui.input_text(
-                'Value',
-                self.uniform_value,
-                256
-            )
-            combo_clicked, self.uniform_list_value = imgui.combo(
-                "Type", self.uniform_list_value, self.uniform_list
-            )
+				if imgui.begin_menu('Shaders', True):
+					if(imgui.menu_item('Open ...', 'Ctrl+O', False, True)[0]):
+						shader_paths = FileChooser().open_multiple_file_dialog()
+						while Gtk.events_pending ():
+  							Gtk.main_iteration()
+						for shader_path in shader_paths:
+							if shader_path.split(".")[-1] == "vert":
+								self.vertex_shader = shader_path
+							else:
+								self.fragment_shader = shader_path
+								
+						self.reload_shaders(self.vertex_shader, self.fragment_shader)
 
-            if(imgui.button("Add Uniform")):
-                new_uniform = self.parse_uniforms(
-                    self.uniform_name, self.uniform_value)
-                if new_uniform is not None:
-                    self.uniform_dict[self.uniform_name] = new_uniform
-                    self.uniform_name = ""
-                    self.uniform_value = ""
-                else:
-                    self.uniform_parse_error = "error parsing uniform"
-            imgui.same_line()
-            imgui.text(self.uniform_parse_error)
+					imgui.end_menu()
 
-            uniforms = [x.strip() for x in self.uniform_name.split(",")]
-            for key, value in self.uniform_dict.items():
-                imgui.text(
-                    f"{key}: {value['type'] + '['+str(value['value'])[1:-1] +']'}")
+				imgui.end_main_menu_bar()
+				
 
-            imgui.begin_child("region", 450, -50, border=True)
-            imgui.core.push_text_wrap_position(wrap_pos_x=0.0)
-            imgui.text("Errors:")
+			if(imgui.button("Reload Shaders")):
+				self.shader_errors_list = self.reload_shaders(self.vertex_shader, self.fragment_shader)
 
-            if len(self.shader_errors_list) > 0:
-                for error in self.shader_errors_list:
-                    imgui.text(error)
-            imgui.core.pop_text_wrap_position()
-            imgui.end_child()
+			color_changed, self.color = imgui.color_edit4(
+				"Background Color", *self.color, show_alpha=True)
+			if(color_changed):
+				self.config_dict['background_color'] = [*self.color]
 
-            # _, self.zoom = imgui.slider_float(
-            #    "slide floats", self.zoom,
-            #    min_value=0.0, max_value=100.0,
-            #    format="%.1f",
-            #    power=1.0
-            # )
+			imgui.plot_lines("", self.fps_values, scale_min=0.0, overlay_text="FPS: " +
+							 str(self.fps_values[-1]), graph_size=(300.0, 50.0))
 
-    def start_imgui_frame(self):
-        self.impl.process_inputs()
-        imgui.new_frame()
+			combo_clicked, self.config_dict['current_object'] = imgui.combo(
+				"combo", self.config_dict['current_object'], self.object_map
+			)
+			if(combo_clicked):
+				self.load_object(self.config_dict['current_object'])
 
-    def render_imgui(self):
-        imgui.render()
-        self.impl.render(imgui.get_draw_data())
+			# TODO: Decide if I want this
+			# _, self.rotatation_speed = imgui.slider_float(
+			#	"Spin", self.rotatation_speed,
+			#	min_value=0.0, max_value=100.0,
+			#	format="%.1f",
+			#	power=1.0
+			# )
 
-    def shutdown_imgui(self):
-        self.impl.shutdown()
+			imgui.text('\nUniforms:')
+			changed, self.uniform_name = imgui.input_text(
+				'Name',
+				self.uniform_name,
+				256
+			)
+			changed, self.uniform_value = imgui.input_text(
+				'Value',
+				self.uniform_value,
+				256
+			)
+			combo_clicked, self.uniform_list_value = imgui.combo(
+				"Type", self.uniform_list_value, self.uniform_list
+			)
 
-    def setup_font(self, font):
-        io = imgui.get_io()
-        new_font = io.fonts.add_font_from_file_ttf(font, 20)
-        self.impl.refresh_font_texture()
-        return new_font
+			if(imgui.button("Add Uniform")):
+				new_uniform = self.parse_uniforms(
+					self.uniform_name, self.uniform_value)
+				if new_uniform is not None:
+					self.uniform_dict[self.uniform_name] = new_uniform
+					self.uniform_name = ""
+					self.uniform_value = ""
+				else:
+					self.uniform_parse_error = "error parsing uniform"
+			imgui.same_line()
+			imgui.text(self.uniform_parse_error)
+
+			
+			selected = [False for x in range(len(self.uniform_dict.keys()))]
+			#_, selected[0] = imgui.selectable(
+			#	"1. I am selectable", selected[0]
+			#)
+			#_, selected[1] = imgui.selectable(
+			#	"2. I am selectable too", selected[1]
+			#)
+			#imgui.text("3. I am not selectable")
+
+
+			selectable_index = 0
+			for key, value in self.uniform_dict.copy().items():
+				_, selected[selectable_index] = imgui.selectable(
+					f"{key}: {value['type'] + '['+str(value['value'])[1:-1] +']'}", selected[selectable_index]
+				)
+				if selected[selectable_index]:
+					del self.uniform_dict[key]
+
+				selectable_index += 1
+
+			imgui.begin_child("region", 450, -50, border=True)
+			imgui.core.push_text_wrap_position(wrap_pos_x=0.0)
+			imgui.text("Errors:")
+
+			if len(self.shader_errors_list) > 0:
+				for error in self.shader_errors_list:
+					imgui.text(error)
+			imgui.core.pop_text_wrap_position()
+			imgui.end_child()
+
+			# _, self.zoom = imgui.slider_float(
+			#    "slide floats", self.zoom,
+			#    min_value=0.0, max_value=100.0,
+			#    format="%.1f",
+			#    power=1.0
+			# )
+
+	def start_imgui_frame(self):
+		self.impl.process_inputs()
+		imgui.new_frame()
+
+	def render_imgui(self):
+		imgui.render()
+		self.impl.render(imgui.get_draw_data())
+
+	def shutdown_imgui(self):
+		self.impl.shutdown()
+
+	def setup_font(self, font):
+		io = imgui.get_io()
+		new_font = io.fonts.add_font_from_file_ttf(font, 20)
+		self.impl.refresh_font_texture()
+		return new_font

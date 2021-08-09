@@ -21,6 +21,18 @@ class Camera(object):
 
 		self.rotation_matrix = np.identity(4, dtype=np.float32)
 
+	def get_camera_position(self, position):
+		p = np.identity(4, dtype=np.float32)
+		# Need only the position part of the matrix
+		p[0][3] = position[0][3]
+		p[1][3] = position[1][3]
+		p[2][3] = position[2][3]
+		mv_transpose = np.dot(p, np.identity(4, dtype=np.float32)).transpose()
+		inverse_camera = [-mv_transpose[3][0], -mv_transpose[3][1], -mv_transpose[3][2], -mv_transpose[3][3]]
+		cam_position = np.dot(mv_transpose, inverse_camera)
+
+		return cam_position
+
 
 	def process_mouse_scroll(self, y_offset, delta_time):
 		
