@@ -28,12 +28,10 @@ class FileChooser():
 		self.add_filters(dia)
 		response = dia.run()
 		if response == Gtk.ResponseType.OK:
-			print("Open clicked")
-			#print("File selected: " + dia.get_filenames())
 			paths = dia.get_filenames()
-			print(paths)
 		elif response == Gtk.ResponseType.CANCEL:
-			print("Cancel clicked")
+			pass
+			#print("Cancel clicked")
 		
 		dia.destroy()
 
@@ -55,11 +53,10 @@ class FileChooser():
 		self.add_filters(dia)
 		response = dia.run()
 		if response == Gtk.ResponseType.OK:
-			print("Open clicked")
-			print("File selected: " + dia.get_filename())
 			path = dia.get_filename()
 		elif response == Gtk.ResponseType.CANCEL:
-			print("Cancel clicked")
+			pass
+			#print("Cancel clicked")
 		
 		dia.destroy()
 
@@ -78,17 +75,12 @@ class FileChooser():
 		self.add_filters(dia)
 		response = dia.run()
 
-		
-
 		file_path = ''
 		if response == Gtk.ResponseType.OK:
 			file_path = dia.get_filename()
-			print("Save clicked")
-			print("File selected: " + file_path)
-			#self.labelframe.set_label(os.path.basename(file_path))
-			#self.editor.save_file(file_path)
 		elif response == Gtk.ResponseType.CANCEL:
-			print("Cancel clicked")
+			pass
+			#print("Cancel clicked")
 
 		if file_path != '':
 			try:

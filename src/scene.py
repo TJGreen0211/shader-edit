@@ -10,7 +10,6 @@ from OpenGL.GL import *
 from numpy.core.numeric import indices
 from numpy.lib.function_base import append
 
-from objloader import ObjFile
 from shader import Shader
 import matmath
 import obj

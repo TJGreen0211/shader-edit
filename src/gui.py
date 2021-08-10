@@ -23,7 +23,6 @@ from dialogs import FileChooser
 class GUI(Scene):
 	def __init__(self):
 		super().__init__()
-
 		self.font = self.setup_font(
 			"resources/fonts/"+self.config_dict["font"])
 		self.color = tuple(self.config_dict['background_color'])
@@ -55,6 +54,8 @@ class GUI(Scene):
 			"glUniformMatrix2fv", "glUniformMatrix3fv", "glUniformMatrix4fv",
 			"glUniformMatrix2x3fv", "glUniformMatrix3x2fv", "glUniformMatrix2x4fv",
 			"glUniformMatrix4x2fv", "glUniformMatrix3x4fv", "glUniformMatrix4x3fv"]
+
+		self.mouse_reset_down = True
 
 	def is_float(self, x):
 		try:
@@ -104,12 +105,23 @@ class GUI(Scene):
 
 		return {"type": uniform_type, "value": uniforms}
 
+	def reset_state(self):
+		self.color = tuple(self.config_dict['background_color'])
+		self.uniform_dict = {}
+		self.vertex_shader = self.config_dict['shader_vs']
+		self.fragment_shader = self.config_dict['shader_fs']
+		self.config_dict['current_object'] = 0
+		self.reload_shaders(self.vertex_shader, self.fragment_shader)
+
+
 	def load_save_state(self, save_dict):
 		self.color = tuple(save_dict['background_color'])
 		self.uniform_dict = save_dict['uniforms']
 		self.vertex_shader = save_dict['shader_vs']
 		self.fragment_shader = save_dict['shader_fs']
 		self.config_dict['current_object'] = save_dict['current_object']
+		self.reload_shaders(self.vertex_shader, self.fragment_shader)
+
 
 	def save_state(self):
 		save_dict = {}
@@ -118,7 +130,7 @@ class GUI(Scene):
 		save_dict['shader_vs'] = self.vertex_shader
 		save_dict['shader_fs'] = self.fragment_shader
 		save_dict['current_object'] = self.config_dict['current_object']
-		FileChooser().save_file_dialog()
+		FileChooser().save_file_dialog(save_dict)
 		while Gtk.events_pending():
   			Gtk.main_iteration()
 
@@ -140,7 +152,9 @@ class GUI(Scene):
 						except:
 							pass
 							
-					#imgui.menu_item('New', 'Ctrl+N', False, True)
+					if(imgui.menu_item('New', 'Ctrl+N', False, True)[0]):
+						self.reset_state()
+					
 
 					if(imgui.menu_item('Import Object ...', 'Ctrl+I', False, True)[0]):
 						object_path = FileChooser().open_file_dialog()
@@ -224,25 +238,27 @@ class GUI(Scene):
 					self.uniform_parse_error = "error parsing uniform"
 			imgui.same_line()
 			imgui.text(self.uniform_parse_error)
+			#print(imgui.get_io().mouse_down[1])
 
 			
 			selected = [False for x in range(len(self.uniform_dict.keys()))]
-			#_, selected[0] = imgui.selectable(
-			#	"1. I am selectable", selected[0]
-			#)
-			#_, selected[1] = imgui.selectable(
-			#	"2. I am selectable too", selected[1]
-			#)
-			#imgui.text("3. I am not selectable")
-
 
 			selectable_index = 0
 			for key, value in self.uniform_dict.copy().items():
 				_, selected[selectable_index] = imgui.selectable(
 					f"{key}: {value['type'] + '['+str(value['value'])[1:-1] +']'}", selected[selectable_index]
 				)
-				if selected[selectable_index]:
-					del self.uniform_dict[key]
+				if imgui.core.is_item_hovered():
+					if imgui.get_io().mouse_down[1] and self.mouse_reset_down:
+						self.mouse_reset_down = False
+						del self.uniform_dict[key]
+					#if imgui.get_io().mouse_down[0]:
+					if selected[selectable_index]:
+						self.uniform_name = key
+						self.uniform_value = "".join(str(value['value'])[1:-1])	
+
+				if not imgui.get_io().mouse_down[1]:
+					self.mouse_reset_down = True
 
 				selectable_index += 1
 
