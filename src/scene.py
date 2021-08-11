@@ -10,7 +10,7 @@ from OpenGL.GL import *
 from numpy.core.numeric import indices
 from numpy.lib.function_base import append
 
-from shader import Shader
+from utility.shader import Shader
 import matmath
 import obj
 from camera import Camera
@@ -189,7 +189,7 @@ class Scene(GlfwRenderer):
 		glfw.set_scroll_callback(self.window, self.scroll_callback)
 		glfw.set_mouse_button_callback(self.window, self.mouse_button_callback)
 
-	def draw_object(self, uniform_dict):
+	def draw_object(self, uniform_dict, theta_time):
 		try:
 
 			glUseProgram(self.shader)
@@ -206,6 +206,7 @@ class Scene(GlfwRenderer):
 				# This is unsafe but I don't care
 				eval(value['type'])(glGetUniformLocation(self.shader, bytes(key, 'utf-8')), *tuple(value['value']))
 
+			glUniform1f(glGetUniformLocation(self.shader, b"theta_time"), theta_time)
 			glUniform3f(glGetUniformLocation(self.shader, b"camera_position"), *tuple(self.camera.get_camera_position(self.model)[0:3]))
 			
 

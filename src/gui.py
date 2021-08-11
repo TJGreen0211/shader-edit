@@ -1,21 +1,13 @@
-import os
 import json
 
 import imgui
-
-import tkinter as tk
-from tkinter import filedialog
 from array import array
-
-from numpy.lib.npyio import save
 
 from scene import Scene
 
 import gi
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
-
-import threading
 
 from dialogs import FileChooser
 
@@ -31,6 +23,8 @@ class GUI(Scene):
 		self.fragment_shader = self.config_dict['shader_fs']
 
 		self.object_map = ["Cube", "Sphere", "Quad", "Triangle"]
+		self.enable_blend = False
+		self.enable_cull_face = False
 
 		self.fps_values = array('f', [0 for x in range(100)])
 
@@ -111,6 +105,7 @@ class GUI(Scene):
 		self.vertex_shader = self.config_dict['shader_vs']
 		self.fragment_shader = self.config_dict['shader_fs']
 		self.config_dict['current_object'] = 0
+		self.load_object(self.config_dict['current_object'])
 		self.reload_shaders(self.vertex_shader, self.fragment_shader)
 
 
@@ -120,6 +115,7 @@ class GUI(Scene):
 		self.vertex_shader = save_dict['shader_vs']
 		self.fragment_shader = save_dict['shader_fs']
 		self.config_dict['current_object'] = save_dict['current_object']
+		self.load_object(self.config_dict['current_object'])
 		self.reload_shaders(self.vertex_shader, self.fragment_shader)
 
 
@@ -262,7 +258,7 @@ class GUI(Scene):
 
 				selectable_index += 1
 
-			imgui.begin_child("region", 450, -50, border=True)
+			imgui.begin_child("region", 450, 200, border=True)
 			imgui.core.push_text_wrap_position(wrap_pos_x=0.0)
 			imgui.text("Errors:")
 
@@ -271,6 +267,9 @@ class GUI(Scene):
 					imgui.text(error)
 			imgui.core.pop_text_wrap_position()
 			imgui.end_child()
+
+			_, self.enable_blend = imgui.checkbox("Enable Blending", self.enable_blend)
+			_, self.enable_cull_face = imgui.checkbox("Enable Face Culling", self.enable_cull_face)
 
 			# _, self.zoom = imgui.slider_float(
 			#    "slide floats", self.zoom,
