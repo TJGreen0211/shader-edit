@@ -50,7 +50,7 @@ class App(GUI):
 			self.start_imgui_frame()
 			self.menu()
 
-			self.draw_object(self.uniform_dict, theta)
+			self.draw_object(self.uniform_dict, self.textures_list, theta)
 
 			self.render_imgui()
 			glfw.swap_buffers(self.window)

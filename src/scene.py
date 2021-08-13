@@ -205,6 +205,11 @@ class Scene(GlfwRenderer):
 			for key, value in uniform_dict.items():
 				# This is unsafe but I don't care
 				eval(value['type'])(glGetUniformLocation(self.shader, bytes(key, 'utf-8')), *tuple(value['value']))
+			for i, texture in enumerate(textures_list):
+				glActiveTexture(GL_TEXTURE1)
+				glBindTexture(GL_TEXTURE_2D, texture.texture_id)
+				glUniform1i(glGetUniformLocation(self.shader, bytes("texture"+str(i), 'utf-8')), 1)
+			glActiveTexture(GL_TEXTURE0)
 
 			glUniform1f(glGetUniformLocation(self.shader, b"theta_time"), theta_time)
 			glUniform3f(glGetUniformLocation(self.shader, b"camera_position"), *tuple(self.camera.get_camera_position(self.model)[0:3]))

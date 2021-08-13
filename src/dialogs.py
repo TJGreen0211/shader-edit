@@ -91,10 +91,10 @@ class FileChooser():
 
 		dia.destroy()
 	
-	def add_filters(self, dia):
+	def add_filters(self, dia, filter_pattern="*"):
 		filter_any = Gtk.FileFilter()
 		filter_any.set_name("Any files")
-		filter_any.add_pattern("*")
+		filter_any.add_pattern(filter_pattern)
 		dia.add_filter(filter_any)
 
 	def get_path(self):
