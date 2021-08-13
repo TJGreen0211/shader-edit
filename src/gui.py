@@ -10,6 +10,7 @@ gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
 from dialogs import FileChooser
+from utility import textures
 
 
 class GUI(Scene):
@@ -49,7 +50,10 @@ class GUI(Scene):
 			"glUniformMatrix2x3fv", "glUniformMatrix3x2fv", "glUniformMatrix2x4fv",
 			"glUniformMatrix4x2fv", "glUniformMatrix3x4fv", "glUniformMatrix4x3fv"]
 
+		self.textures_list = []
 		self.mouse_reset_down = True
+		self.add_image_button_texture = textures.Textures("resources/images/plus.png")
+
 
 	def is_float(self, x):
 		try:
@@ -139,7 +143,7 @@ class GUI(Scene):
 						self.save_state()
 
 					if(imgui.menu_item('Open ...', 'Ctrl+O', False, True)[0]):
-						file_path = FileChooser().open_file_dialog()
+						file_path = FileChooser().open_file_dialog(start_directory='resources/saves')
 						while Gtk.events_pending():
   							Gtk.main_iteration()
 						try:
@@ -153,7 +157,7 @@ class GUI(Scene):
 					
 
 					if(imgui.menu_item('Import Object ...', 'Ctrl+I', False, True)[0]):
-						object_path = FileChooser().open_file_dialog()
+						object_path = FileChooser().open_file_dialog(start_directory='resources/objects')
 						while Gtk.events_pending ():
   							Gtk.main_iteration()
 						if object_path != "":
@@ -267,6 +271,26 @@ class GUI(Scene):
 					imgui.text(error)
 			imgui.core.pop_text_wrap_position()
 			imgui.end_child()
+			
+			total_texture_width = 128
+			for texture in self.textures_list:
+				imgui.image(texture.icon_id, texture.icon_width, texture.icon_height, border_color=(1, 0, 0, 1))
+				total_texture_width += texture.icon_width
+				if imgui.core.get_window_content_region_width() > total_texture_width:
+					imgui.same_line()
+
+			
+			if(imgui.core.image_button(
+				self.add_image_button_texture.icon_id, 
+				self.add_image_button_texture.icon_width, 
+				self.add_image_button_texture.icon_height, 
+				border_color=(1, 0, 0, 0)
+			)):
+				image_path = FileChooser().open_file_dialog(start_directory='resources/images')
+				while Gtk.events_pending ():
+  					Gtk.main_iteration()
+				self.textures_list.append(textures.Textures(image_path))
+				
 
 			_, self.enable_blend = imgui.checkbox("Enable Blending", self.enable_blend)
 			_, self.enable_cull_face = imgui.checkbox("Enable Face Culling", self.enable_cull_face)

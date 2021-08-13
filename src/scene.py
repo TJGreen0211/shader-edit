@@ -189,7 +189,7 @@ class Scene(GlfwRenderer):
 		glfw.set_scroll_callback(self.window, self.scroll_callback)
 		glfw.set_mouse_button_callback(self.window, self.mouse_button_callback)
 
-	def draw_object(self, uniform_dict, theta_time):
+	def draw_object(self, uniform_dict, textures_list, theta_time):
 		try:
 
 			glUseProgram(self.shader)

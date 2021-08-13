@@ -37,7 +37,7 @@ class FileChooser():
 
 		return paths
 		
-	def open_file_dialog(self):
+	def open_file_dialog(self, start_directory="resources"):
 		dia = Gtk.FileChooserDialog("Please choose a file", self.w,
 			Gtk.FileChooserAction.OPEN, (
 				Gtk.STOCK_CANCEL, 
@@ -46,7 +46,7 @@ class FileChooser():
 				Gtk.ResponseType.OK
 				)
 			)
-		Gtk.FileChooser.set_current_folder(dia, os.path.join(os.getcwd(), 'resources/saves'))
+		Gtk.FileChooser.set_current_folder(dia, os.path.join(os.getcwd(), start_directory))
 
 		path = ''
 
