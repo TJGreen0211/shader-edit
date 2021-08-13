@@ -12,7 +12,7 @@ from numpy.lib.function_base import append
 
 from utility.shader import Shader
 import matmath
-import obj
+from obj import ObjectLoader
 from camera import Camera
 
 
@@ -99,7 +99,7 @@ class Scene(GlfwRenderer):
 
 		if object_path is not None:
 			try:
-				object_vertices = obj.object_load(object_path)
+				object_vertices = ObjectLoader().load_object(object_path)
 			except:
 				object_vertices = []
 		else:
@@ -117,7 +117,7 @@ class Scene(GlfwRenderer):
 								   0.5, -0.5, 0.0,
 								   0.0, 0.5, 0.0]
 			else:
-				object_vertices = obj.object_load(
+				object_vertices = ObjectLoader().load_object(
 					"resources/objects/"+object_map[object_index].lower()+".obj")
 		
 
@@ -131,8 +131,7 @@ class Scene(GlfwRenderer):
 
 		# Bind the buffer
 		glBindBuffer(GL_ARRAY_BUFFER, VBO)
-		glBufferData(GL_ARRAY_BUFFER, object_vertices.nbytes,
-					 object_vertices, GL_STATIC_DRAW)
+		glBufferData(GL_ARRAY_BUFFER, object_vertices.nbytes, object_vertices, GL_STATIC_DRAW)
 
 		# get the position from vertex shader
 		#position = glGetAttribLocation(self.shader, 'position')
@@ -177,6 +176,7 @@ class Scene(GlfwRenderer):
 		return window
 
 	def setup_glfw(self):
+		glfw.window_hint(glfw.SAMPLES, 4)
 		glfw.set_framebuffer_size_callback(
 			self.window, self.framebuffer_size_callback)
 

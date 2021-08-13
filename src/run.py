@@ -4,8 +4,6 @@ import glfw
 from OpenGL.GL import *
 from gui import GUI
 
-import numpy as np
-
 class App(GUI):
 	def __init__(self):
 		super().__init__()
@@ -17,6 +15,7 @@ class App(GUI):
 
 		glDisable(GL_CULL_FACE)
 		glEnable(GL_DEPTH_TEST)
+		glEnable(GL_MULTISAMPLE)
 		theta = 0.0
 
 		while not glfw.window_should_close(self.window):
@@ -30,6 +29,7 @@ class App(GUI):
 				glEnable(GL_CULL_FACE)
 			else:
 				glDisable(GL_CULL_FACE)
+
 
 			frame_count += 1
 			current_frame = glfw.get_time()

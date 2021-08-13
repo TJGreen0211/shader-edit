@@ -69,6 +69,3 @@ class Textures():
 		opengl.glBindTexture(opengl.GL_TEXTURE_2D, 0)
 
 		return texture
-
-
-#Textures().load_texture("/home/tj/Documents/code/shader-edit/resources/images/earth.jpeg")

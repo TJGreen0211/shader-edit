@@ -119,6 +119,8 @@ class GUI(Scene):
 		self.vertex_shader = save_dict['shader_vs']
 		self.fragment_shader = save_dict['shader_fs']
 		self.config_dict['current_object'] = save_dict['current_object']
+		for tex in save_dict['textures']:
+			self.textures_list.append(textures.Textures(tex))
 		self.load_object(self.config_dict['current_object'])
 		self.reload_shaders(self.vertex_shader, self.fragment_shader)
 
@@ -130,12 +132,14 @@ class GUI(Scene):
 		save_dict['shader_vs'] = self.vertex_shader
 		save_dict['shader_fs'] = self.fragment_shader
 		save_dict['current_object'] = self.config_dict['current_object']
+		save_dict['textures'] = [x.path for x in self.textures_list]
 		FileChooser().save_file_dialog(save_dict)
 		while Gtk.events_pending():
   			Gtk.main_iteration()
 
 	def menu(self):
 		with imgui.font(self.font):
+			imgui.begin("Menu")
 			if imgui.begin_main_menu_bar():
 				# first menu dropdown
 				if imgui.begin_menu('File', True):
@@ -294,6 +298,7 @@ class GUI(Scene):
 
 			_, self.enable_blend = imgui.checkbox("Enable Blending", self.enable_blend)
 			_, self.enable_cull_face = imgui.checkbox("Enable Face Culling", self.enable_cull_face)
+			imgui.end()
 
 			# _, self.zoom = imgui.slider_float(
 			#    "slide floats", self.zoom,
