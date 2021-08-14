@@ -24,7 +24,7 @@ class GUI(Scene):
 		self.vertex_shader = self.config_dict['shader_vs']
 		self.fragment_shader = self.config_dict['shader_fs']
 
-		self.object_map = ["Cube", "Sphere", "Quad", "Triangle"]
+		self.object_map = ["Cube", "Sphere", "Torus", "Quad", "Triangle"]
 		self.enable_blend = False
 		self.enable_cull_face = False
 

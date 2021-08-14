@@ -106,7 +106,7 @@ class Scene(GlfwRenderer):
 			except:
 				object_vertices = []
 		else:
-			object_map = ["Cube", "Sphere", "Quad", "Triangle"]
+			object_map = ["Cube", "Sphere", "Torus", "Quad", "Triangle"]
 			if object_map[object_index] == "Quad":
 				object_vertices = [
 					-1.0,  1.0, 0.0,
