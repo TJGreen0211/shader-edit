@@ -16,6 +16,7 @@ from obj import ObjectLoader
 from camera import Camera
 
 
+#~/.local/lib/python3.9/site-packages/imgui/integrations/glfw.py
 class Scene(GlfwRenderer):
 	def __init__(self):
 		self.window_width = 1280
@@ -65,6 +66,8 @@ class Scene(GlfwRenderer):
 		glfw.set_window_should_close(self.window, True)
 
 	def scroll_callback(self, window, x_offset, y_offset):
+		io = imgui.get_io()
+		io.mouse_wheel = y_offset
 		self.camera.process_mouse_scroll(y_offset, 0.0)
 
 	def mouse_callback(self, window, xpos, ypos):
@@ -166,6 +169,7 @@ class Scene(GlfwRenderer):
 			return
 
 		mode = glfw.get_video_mode(glfw.get_primary_monitor())
+		glfw.window_hint(glfw.SAMPLES, 4)
 		window = glfw.create_window(
 			self.window_width, self.window_height, "Shader Edit", None, None)
 		if not window:
@@ -176,7 +180,6 @@ class Scene(GlfwRenderer):
 		return window
 
 	def setup_glfw(self):
-		glfw.window_hint(glfw.SAMPLES, 4)
 		glfw.set_framebuffer_size_callback(
 			self.window, self.framebuffer_size_callback)
 

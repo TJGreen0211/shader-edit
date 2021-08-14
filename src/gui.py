@@ -11,6 +11,7 @@ from gi.repository import Gtk
 
 from dialogs import FileChooser
 from utility import textures
+from gui_helper import GUIHelper
 
 
 class GUI(Scene):
@@ -28,6 +29,8 @@ class GUI(Scene):
 		self.enable_cull_face = False
 
 		self.fps_values = array('f', [0 for x in range(100)])
+
+		self.gui_helper = GUIHelper()
 
 		self.shader_errors_list = []
 
@@ -54,54 +57,6 @@ class GUI(Scene):
 		self.mouse_reset_down = True
 		self.add_image_button_texture = textures.Textures("resources/images/plus.png")
 
-
-	def is_float(self, x):
-		try:
-			a = float(x)
-		except (TypeError, ValueError):
-			return False
-		else:
-			return True
-	
-	def is_int(self, x):
-		try:
-			a = float(x)
-			b = int(a)
-		except (TypeError, ValueError):
-			return False
-		else:
-			return a == b
-
-	def is_numeric(self, string):
-		result = True
-		try:
-			x = float(string)
-			result = (x == x) and (x - 1 != x)
-		except ValueError:
-			result = False
-		return result
-
-	def parse_uniforms(self, key, value):
-		if len(key) == 0 or len(value) == 0:
-			return None
-
-		data_type = ""
-		uniforms_list = value.split(",")
-		for uniform in uniforms_list:
-			if not self.is_numeric(uniform):
-				return None
-			
-		if not any([self.is_float(x) for x in uniforms_list]):
-			data_type = "i"
-			uniforms = [int(x) for x in uniforms_list]
-		else:
-			uniforms = [float(x) for x in uniforms_list]
-			data_type = "f"
-
-
-		uniform_type = "glUniform"+str(len(uniforms_list))+data_type
-
-		return {"type": uniform_type, "value": uniforms}
 
 	def reset_state(self):
 		self.color = tuple(self.config_dict['background_color'])
@@ -208,14 +163,6 @@ class GUI(Scene):
 			if(combo_clicked):
 				self.load_object(self.config_dict['current_object'])
 
-			# TODO: Decide if I want this
-			# _, self.rotatation_speed = imgui.slider_float(
-			#	"Spin", self.rotatation_speed,
-			#	min_value=0.0, max_value=100.0,
-			#	format="%.1f",
-			#	power=1.0
-			# )
-
 			imgui.text('\nUniforms:')
 			changed, self.uniform_name = imgui.input_text(
 				'Name',
@@ -232,7 +179,7 @@ class GUI(Scene):
 			)
 
 			if(imgui.button("Add Uniform")):
-				new_uniform = self.parse_uniforms(
+				new_uniform = self.gui_helper.parse_uniforms(
 					self.uniform_name, self.uniform_value)
 				if new_uniform is not None:
 					self.uniform_dict[self.uniform_name] = new_uniform
@@ -299,13 +246,6 @@ class GUI(Scene):
 			_, self.enable_blend = imgui.checkbox("Enable Blending", self.enable_blend)
 			_, self.enable_cull_face = imgui.checkbox("Enable Face Culling", self.enable_cull_face)
 			imgui.end()
-
-			# _, self.zoom = imgui.slider_float(
-			#    "slide floats", self.zoom,
-			#    min_value=0.0, max_value=100.0,
-			#    format="%.1f",
-			#    power=1.0
-			# )
 
 	def start_imgui_frame(self):
 		self.impl.process_inputs()
