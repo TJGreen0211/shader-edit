@@ -4,6 +4,9 @@ import imgui
 from array import array
 
 from scene import Scene
+import OpenGL.GL as opengl
+import numpy as np
+from PIL import Image
 
 import gi
 gi.require_version("Gtk", "3.0")
@@ -74,6 +77,7 @@ class GUI(Scene):
 		self.vertex_shader = save_dict['shader_vs']
 		self.fragment_shader = save_dict['shader_fs']
 		self.config_dict['current_object'] = save_dict['current_object']
+		self.textures_list = []
 		for tex in save_dict['textures']:
 			self.textures_list.append(textures.Textures(tex))
 		self.load_object(self.config_dict['current_object'])
@@ -91,6 +95,21 @@ class GUI(Scene):
 		FileChooser().save_file_dialog(save_dict)
 		while Gtk.events_pending():
   			Gtk.main_iteration()
+
+	def save_fbo_as_image(self):
+		pixels = opengl.glReadPixels(0, 0, self.window_width, self.window_height, opengl.GL_RGBA, opengl.GL_UNSIGNED_BYTE)
+		#array = np.array(pixels, dtype=np.ubyte)
+		#data = glReadPixels (0, 0, image.width, image.height, GL_RGB,  GL_UNSIGNED_BYTE)
+		image = Image.new ("RGB", (self.window_width, self.window_height), (0, 0, 0))
+		image.frombytes (pixels)
+		image = image.transpose(Image.FLIP_TOP_BOTTOM)
+		image.save ('result.jpg')
+
+
+		# Use PIL to create an image from the new array of pixels
+		#new_image = Image.fromarray(array)
+		#new_image.save('new.png')
+
 
 	def menu(self):
 		with imgui.font(self.font):
@@ -245,6 +264,9 @@ class GUI(Scene):
 
 			_, self.enable_blend = imgui.checkbox("Enable Blending", self.enable_blend)
 			_, self.enable_cull_face = imgui.checkbox("Enable Face Culling", self.enable_cull_face)
+
+			#if(imgui.button("Save Image")):
+			#	self.save_fbo_as_image()
 			imgui.end()
 
 	def start_imgui_frame(self):
