@@ -1,0 +1,28 @@
+{
+    "background_color": [
+        0.11709577590227127,
+        0.47113853693008423,
+        0.49110323190689087,
+        1.0
+    ],
+    "uniforms": {
+        "lightPosition": {
+            "type": "glUniform3f",
+            "value": [
+                10.0,
+                0.0,
+                5.0
+            ]
+        },
+        "fOuterRadius": {
+            "type": "glUniform1f",
+            "value": [
+                1.2
+            ]
+        }
+    },
+    "shader_vs": "/home/tj/Documents/code/shader-edit/resources/shaders/nebula.vert",
+    "shader_fs": "/home/tj/Documents/code/shader-edit/resources/shaders/nebula.frag",
+    "current_object": 0,
+    "textures": []
+}

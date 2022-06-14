@@ -1,5 +1,5 @@
 # Save folder
-resources/saves/
+# resources/saves/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

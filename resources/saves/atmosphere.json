@@ -1,0 +1,66 @@
+{
+    "background_color": [
+        9.999999974752427e-07,
+        7.935943244774535e-07,
+        7.935943244774535e-07,
+        1.0
+    ],
+    "uniforms": {
+        "C_R": {
+            "type": "glUniform3f",
+            "value": [
+                0.3,
+                0.7,
+                1.0
+            ]
+        },
+        "K_R": {
+            "type": "glUniform1f",
+            "value": [
+                0.166
+            ]
+        },
+        "K_M": {
+            "type": "glUniform1f",
+            "value": [
+                0.0025
+            ]
+        },
+        "G_M": {
+            "type": "glUniform1f",
+            "value": [
+                -0.85
+            ]
+        },
+        "E": {
+            "type": "glUniform1f",
+            "value": [
+                14.3
+            ]
+        },
+        "lightPosition": {
+            "type": "glUniform3f",
+            "value": [
+                10.0,
+                0.0,
+                5.0
+            ]
+        },
+        "fOuterRadius": {
+            "type": "glUniform1f",
+            "value": [
+                1.0
+            ]
+        },
+        "fInnerRadius": {
+            "type": "glUniform1f",
+            "value": [
+                0.9
+            ]
+        }
+    },
+    "shader_vs": "/home/tj/Documents/code/shader-edit/resources/shaders/atmosphere.vert",
+    "shader_fs": "/home/tj/Documents/code/shader-edit/resources/shaders/atmosphere.frag",
+    "current_object": 1,
+    "textures": []
+}

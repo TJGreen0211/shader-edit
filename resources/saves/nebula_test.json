@@ -1,0 +1,15 @@
+{
+    "background_color": [
+        0.7046263217926025,
+        0.4939906895160675,
+        0.4939906895160675,
+        1.0
+    ],
+    "uniforms": {},
+    "shader_vs": "/home/tj/Documents/code/shader-edit/resources/shaders/intergalactic_clouds.vert",
+    "shader_fs": "/home/tj/Documents/code/shader-edit/resources/shaders/intergalactic_clouds.frag",
+    "current_object": 0,
+    "textures": [
+        "/home/tj/Documents/code/shader-edit/resources/images/noise1.png"
+    ]
+}
