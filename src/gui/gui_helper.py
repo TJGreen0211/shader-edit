@@ -5,7 +5,7 @@ class GUIHelper():
     """Functions used in the GUI class to help parse uniform data."""
 
     def __init__(self):
-        """init."""
+        """Constructor."""
         pass
 
     def _is_float(self, x):

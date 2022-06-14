@@ -10,7 +10,7 @@ from OpenGL.GL import *
 
 import matmath
 from utility.shader import Shader
-from obj import ObjectLoader
+from model.obj import ObjectLoader
 from camera import Camera
 
 
@@ -42,7 +42,7 @@ class Scene(GlfwRenderer):
         self.camera = Camera(mouse_scroll=-3.0)
 
         self.perspective = matmath.mat4_perspective(90.0, float(
-            self.window_width)/float(self.window_height), 0.1, 5000.0)
+            self.window_width) / float(self.window_height), 0.1, 5000.0)
         self.shader = Shader(
             self.config_dict["shader_vs"], self.config_dict["shader_fs"]).get_program()
         self._init_opengl()
