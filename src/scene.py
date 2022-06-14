@@ -194,7 +194,6 @@ class Scene(GlfwRenderer):
 
 	def draw_object(self, uniform_dict, textures_list, theta_time):
 		try:
-
 			glUseProgram(self.shader)
 			glBindVertexArray(self.vao)
 
@@ -203,7 +202,6 @@ class Scene(GlfwRenderer):
 			self.model[0][3] = 0.0
 			self.model[1][3] = 0.0
 			self.model[2][3] = self.camera.mouse_scroll
-
 
 			for key, value in uniform_dict.items():
 				# This is unsafe but I don't care
