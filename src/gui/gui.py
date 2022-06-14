@@ -9,14 +9,13 @@ from PIL import Image
 
 from dialogs import FileChooser
 from utility import textures
-from gui_helper import GUIHelper
+from .gui_helper import GUIHelper
 
 
 class GUI(Scene):
-    """
-    Creates the gui from imgui implementation.
-    """
+    """Creates the gui from imgui implementation."""
     def __init__(self):
+        """Constructor"""
         super().__init__()
         self.font = self.setup_font(
             "resources/fonts/" + self.config_dict["font"])

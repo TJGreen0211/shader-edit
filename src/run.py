@@ -3,7 +3,7 @@ import glfw
 
 # TODO: Remove wildcard import
 from OpenGL.GL import *
-from gui import GUI
+from gui.gui import GUI
 
 
 class App(GUI):

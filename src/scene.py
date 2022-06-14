@@ -6,7 +6,7 @@ import imgui
 import time
 
 from imgui.integrations.glfw import GlfwRenderer
-from OpenGL import *
+from OpenGL.GL import *
 
 import matmath
 from utility.shader import Shader

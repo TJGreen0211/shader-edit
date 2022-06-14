@@ -1,5 +1,7 @@
 # Save folder
 resources/saves/
+.vscode/
+imgui.ini
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
