@@ -58,7 +58,7 @@ class GUI(Scene):
         self.mouse_reset_down = True
         self.add_image_button_texture = textures.Textures("resources/images/plus.png")
 
-    def reset_state(self):
+    def _reset_state(self):
         self.color = tuple(self.config_dict['background_color'])
         self.uniform_dict = {}
         self.vertex_shader = self.config_dict['shader_vs']
@@ -67,7 +67,7 @@ class GUI(Scene):
         self.load_object(self.config_dict['current_object'])
         self.reload_shaders(self.vertex_shader, self.fragment_shader)
 
-    def load_save_state(self, save_dict):
+    def _load_save_state(self, save_dict):
         self.color = tuple(save_dict['background_color'])
         self.uniform_dict = save_dict['uniforms']
         self.vertex_shader = save_dict['shader_vs']
@@ -79,7 +79,7 @@ class GUI(Scene):
         self.load_object(self.config_dict['current_object'])
         self.reload_shaders(self.vertex_shader, self.fragment_shader)
 
-    def save_state(self):
+    def _save_state(self):
         save_dict = {}
         save_dict['background_color'] = list(self.color)
         save_dict['uniforms'] = self.uniform_dict
@@ -112,19 +112,19 @@ class GUI(Scene):
                 # first menu dropdown
                 if imgui.begin_menu('File', True):
                     if(imgui.menu_item('Save', 'Ctrl+S', False, True)[0]):
-                        self.save_state()
+                        self._save_state()
 
                     if(imgui.menu_item('Open ...', 'Ctrl+O', False, True)[0]):
                         file_path = FileChooser().open_file_dialog(start_directory='resources/saves')
                         try:
                             # with open(file_path, 'r') as f:
                             with open(file_path, 'r') as f:
-                                self.load_save_state(json.load(f))
+                                self._load_save_state(json.load(f))
                         except Exception:
                             pass
 
                     if(imgui.menu_item('New', 'Ctrl+N', False, True)[0]):
-                        self.reset_state()
+                        self._reset_state()
 
                     if(imgui.menu_item('Import Object ...', 'Ctrl+I', False, True)[0]):
                         object_path = FileChooser().open_file_dialog(start_directory='resources/objects')

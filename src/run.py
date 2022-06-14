@@ -7,10 +7,9 @@ from gui.gui import GUI
 
 
 class App(GUI):
-    """
-    Main Application
-    """
+    """Main Application."""
     def __init__(self):
+        """Constructor"""
         super().__init__()
 
     def run(self):
@@ -67,9 +66,7 @@ class App(GUI):
 
 
 def main():
-    """
-    Main
-    """
+    """Main"""
     scene = App()
     scene.run()
 
