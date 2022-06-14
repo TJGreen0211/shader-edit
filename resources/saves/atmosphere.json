@@ -59,8 +59,8 @@
             ]
         }
     },
-    "shader_vs": "/home/tj/Documents/code/shader-edit/resources/shaders/atmosphere.vert",
-    "shader_fs": "/home/tj/Documents/code/shader-edit/resources/shaders/atmosphere.frag",
+    "shader_vs": "resources/shaders/atmosphere.vert",
+    "shader_fs": "resources/shaders/atmosphere.frag",
     "current_object": 1,
     "textures": []
 }

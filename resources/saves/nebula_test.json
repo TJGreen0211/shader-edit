@@ -6,10 +6,10 @@
         1.0
     ],
     "uniforms": {},
-    "shader_vs": "/home/tj/Documents/code/shader-edit/resources/shaders/intergalactic_clouds.vert",
-    "shader_fs": "/home/tj/Documents/code/shader-edit/resources/shaders/intergalactic_clouds.frag",
+    "shader_vs": "resources/shaders/intergalactic_clouds.vert",
+    "shader_fs": "resources/shaders/intergalactic_clouds.frag",
     "current_object": 0,
     "textures": [
-        "/home/tj/Documents/code/shader-edit/resources/images/noise1.png"
+        "resources/images/noise1.png"
     ]
 }

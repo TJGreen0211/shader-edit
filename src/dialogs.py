@@ -1,101 +1,46 @@
-
+"""Basic file dialog functions."""
 import os
 import json
-
-import gi
-gi.require_version("Gtk", "3.0")
-from gi.repository import Gtk
+import easygui
 
 
 class FileChooser():
-	def __init__(self):
-		self.w = Gtk.Window ()
+    """Functionality for open and save file options."""
 
-	def open_multiple_file_dialog(self):
-		dia = Gtk.FileChooserDialog("Please Choose Shader Files", self.w,
-			Gtk.FileChooserAction.OPEN, (
-				Gtk.STOCK_CANCEL, 
-				Gtk.ResponseType.CANCEL,
-			 	Gtk.STOCK_OPEN, 
-				Gtk.ResponseType.OK
-				)
-			)
-		Gtk.FileChooser.set_select_multiple(dia, True)
-		Gtk.FileChooser.set_current_folder(dia, os.path.join(os.getcwd(), 'resources/shaders'))
+    def open_multiple_file_dialog(self, start_directory='resources/shaders'):
+        """
+        Open multiple files at a time. This is currently only used for shaders.
 
-		paths = []
+        :return: Files to be opened
+        :rtype: list
+        """
+        return easygui.fileopenbox("Please Choose Shader Files",
+            default=os.path.join(os.getcwd(), start_directory), multiple=True)
 
-		self.add_filters(dia)
-		response = dia.run()
-		if response == Gtk.ResponseType.OK:
-			paths = dia.get_filenames()
-		elif response == Gtk.ResponseType.CANCEL:
-			pass
-			#print("Cancel clicked")
-		
-		dia.destroy()
+    def open_file_dialog(self, start_directory="resources"):
+        """
+        Open a file and return the path.
 
-		return paths
-		
-	def open_file_dialog(self, start_directory="resources"):
-		dia = Gtk.FileChooserDialog("Please choose a file", self.w,
-			Gtk.FileChooserAction.OPEN, (
-				Gtk.STOCK_CANCEL, 
-				Gtk.ResponseType.CANCEL,
-			 	Gtk.STOCK_OPEN, 
-				Gtk.ResponseType.OK
-				)
-			)
-		Gtk.FileChooser.set_current_folder(dia, os.path.join(os.getcwd(), start_directory))
+        :param start_directory: defaults to resources
+        :type start_directory: (str, optional)
 
-		path = ''
+        :return: Files to be opened
+        :rtype: list
+        """
+        return easygui.fileopenbox("Please choose a file", default=os.path.join(os.getcwd(), start_directory))
 
-		self.add_filters(dia)
-		response = dia.run()
-		if response == Gtk.ResponseType.OK:
-			path = dia.get_filename()
-		elif response == Gtk.ResponseType.CANCEL:
-			pass
-			#print("Cancel clicked")
-		
-		dia.destroy()
+    def save_file_dialog(self, save_dict):
+        """
+        Save a the current workspace as a json file.
 
-		return path
+        :param save_dict: Dictionary with save values.
+        :type save_dict: dict
+        """
+        file_path = easygui.filesavebox("Please choose a file", default=os.path.join(os.getcwd(), 'resources/saves'))
 
-	def save_file_dialog(self, save_dict):
-		dia = Gtk.FileChooserDialog("Please choose a file", self.w,
-			Gtk.FileChooserAction.SAVE, (
-				Gtk.STOCK_CANCEL, 
-				Gtk.ResponseType.CANCEL,
-			 	Gtk.STOCK_SAVE, 
-				Gtk.ResponseType.OK
-				)
-			)
-		Gtk.FileChooser.set_current_folder(dia, os.path.join(os.getcwd(), 'resources/saves'))
-		self.add_filters(dia)
-		response = dia.run()
-
-		file_path = ''
-		if response == Gtk.ResponseType.OK:
-			file_path = dia.get_filename()
-		elif response == Gtk.ResponseType.CANCEL:
-			pass
-			#print("Cancel clicked")
-
-		if file_path != '':
-			try:
-				with open(file_path, 'w') as f:
-					json.dump(save_dict, f, indent=4)
-			except:
-				pass
-
-		dia.destroy()
-	
-	def add_filters(self, dia, filter_pattern="*"):
-		filter_any = Gtk.FileFilter()
-		filter_any.set_name("Any files")
-		filter_any.add_pattern(filter_pattern)
-		dia.add_filter(filter_any)
-
-	def get_path(self):
-		return self.path
+        if file_path != '':
+            try:
+                with open(file_path, 'w') as f:
+                    json.dump(save_dict, f, indent=4)
+            except Exception:
+                pass

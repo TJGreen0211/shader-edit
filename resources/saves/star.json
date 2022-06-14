@@ -21,10 +21,10 @@
             ]
         }
     },
-    "shader_vs": "/home/tj/Documents/code/shader-edit/resources/shaders/star.vert",
-    "shader_fs": "/home/tj/Documents/code/shader-edit/resources/shaders/star.frag",
+    "shader_vs": "resources/shaders/star.vert",
+    "shader_fs": "resources/shaders/star.frag",
     "current_object": 1,
     "textures": [
-        "/home/tj/Documents/code/shader-edit/resources/images/2k_sun.jpg"
+        "resources/images/2k_sun.jpg"
     ]
 }

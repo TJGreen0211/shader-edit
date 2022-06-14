@@ -21,8 +21,8 @@
             ]
         }
     },
-    "shader_vs": "/home/tj/Documents/code/shader-edit/resources/shaders/diffuse_nebula.vert",
-    "shader_fs": "/home/tj/Documents/code/shader-edit/resources/shaders/diffuse_nebula.frag",
+    "shader_vs": "resources/shaders/diffuse_nebula.vert",
+    "shader_fs": "resources/shaders/diffuse_nebula.frag",
     "current_object": 0,
     "textures": []
 }
