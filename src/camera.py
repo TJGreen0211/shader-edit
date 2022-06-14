@@ -1,14 +1,13 @@
-"""
-camera
-"""
+"""Camera rewrite from C implementation."""
 import math
 import numpy as np
 
+
 class Camera(object):
-    """
-    Basic camera class for rotating and zooming in on an object
-    """
-    def __init__(self, mouse_scroll = 0.0):
+    """Basic camera class for rotating and zooming in on an object."""
+
+    def __init__(self, mouse_scroll=0.0):
+        """Constructor."""
         self.mouse_scroll = mouse_scroll
         self.zoom_speed = 0.1
         self.mouse_sensitivity = 0.0001
@@ -47,7 +46,6 @@ class Camera(object):
 
         return cam_position
 
-
     def process_mouse_scroll(self, y_offset, delta_time=0.0):
         """Gets the camera position in model space
 
@@ -62,7 +60,8 @@ class Camera(object):
         if self.mouse_scroll >= -1.0:
             self.mouse_scroll = -1.0
 
-        self.mouse_scroll += y_offset*self.zoom_speed #delta_time*camera->zoom_speed
+        self.mouse_scroll += y_offset * self.zoom_speed
+        # delta_time*camera->zoom_speed
         return y_offset
 
     def reset_view(self):
@@ -79,7 +78,7 @@ class Camera(object):
 
         self.front[0] = math.cos(self.yaw) * math.cos(self.pitch)
         self.front[1] = math.sin(self.pitch)
-        self.front[2] = math.sin(self.yaw ) * math.cos(self.pitch)
+        self.front[2] = math.sin(self.yaw) * math.cos(self.pitch)
         #vec3Normalize(self.front)
         self.front = self.front / np.sqrt(np.sum([x**2.0 for x in self.front]))
 
@@ -113,9 +112,8 @@ class Camera(object):
         #camera->right = vec3Normalize(crossProduct(camera->front, camera->up))
         #camera->up = vec3Normalize(crossProduct(camera->right, camera->front))
 
-
     def process_mouse_movement(self, x_pos, y_pos, reset_flag):
-        """Gets the camera position in model space
+        """Get the camera position in model space.
 
         :param x_pos: mouse x position
         :type x_pos: float
