@@ -1,3 +1,3 @@
 [flake8]
-ignore = E128, E265
+ignore = E128, E265, F405, F403
 max-line-length = 120

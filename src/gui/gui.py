@@ -64,7 +64,7 @@ class GUI(Scene):
         self.vertex_shader = self.config_dict['shader_vs']
         self.fragment_shader = self.config_dict['shader_fs']
         self.config_dict['current_object'] = 0
-        self.load_object(self.config_dict['current_object'])
+        self._load_object(self.config_dict['current_object'])
         self.reload_shaders(self.vertex_shader, self.fragment_shader)
 
     def _load_save_state(self, save_dict):
@@ -76,7 +76,7 @@ class GUI(Scene):
         self.textures_list = []
         for tex in save_dict['textures']:
             self.textures_list.append(textures.Textures(tex))
-        self.load_object(self.config_dict['current_object'])
+        self._load_object(self.config_dict['current_object'])
         self.reload_shaders(self.vertex_shader, self.fragment_shader)
 
     def _save_state(self):
@@ -129,7 +129,7 @@ class GUI(Scene):
                     if(imgui.menu_item('Import Object ...', 'Ctrl+I', False, True)[0]):
                         object_path = FileChooser().open_file_dialog(start_directory='resources/objects')
                         if object_path != "":
-                            self.load_object(0, object_path)
+                            self._load_object(0, object_path)
 
                     if(imgui.menu_item('Quit ...', 'Ctrl+Q', False, True)[0]):
                         self.close_window()
@@ -167,7 +167,7 @@ class GUI(Scene):
                 "combo", self.config_dict['current_object'], self.object_map
             )
             if(combo_clicked):
-                self.load_object(self.config_dict['current_object'])
+                self._load_object(self.config_dict['current_object'])
 
             imgui.text('\nUniforms:')
             changed, self.uniform_name = imgui.input_text(

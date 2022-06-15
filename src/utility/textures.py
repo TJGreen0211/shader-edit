@@ -26,7 +26,7 @@ class Textures():
         self.texture_id = self._load_texture()
         self.icon_id = self._load_texture_icon()
 
-    def _get_img_type(self, path):
+    def _get_img_type(self):
         if self.path.split(".")[-1] == "png":
             img_type = opengl.GL_RGBA
         else:

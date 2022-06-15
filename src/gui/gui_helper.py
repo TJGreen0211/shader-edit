@@ -10,7 +10,7 @@ class GUIHelper():
 
     def _is_float(self, x):
         try:
-            float(x)
+            a = float(x)
         except (TypeError, ValueError):
             return False
         else:

@@ -1,29 +1,30 @@
 """Runs the main application."""
 import glfw
 
-# TODO: Remove wildcard import
 from OpenGL.GL import *
 from gui.gui import GUI
 
 
 class App(GUI):
     """Main Application."""
-    def __init__(self):
-        """Constructor"""
-        super().__init__()
 
-    def run(self):
-        """
-        Run the application
-        """
-        frame_count = 0
-        time_count = 0.0
-        last_frame = 0.0
-
+    def _gl_enable(self):
         glDisable(GL_CULL_FACE)
         glEnable(GL_DEPTH_TEST)
         glEnable(GL_MULTISAMPLE)
+
+    def _calculate_fps(self):
+        # TODO: Move this out of the main function
+        pass
+
+    def run(self):
+        """Run the application."""
+        frame_count = 0
+        time_count = 0.0
+        last_frame = 0.0
         theta = 0.0
+
+        self._gl_enable()
 
         while not glfw.window_should_close(self.window):
             if self.enable_blend:
